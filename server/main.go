@@ -1,7 +1,7 @@
 package main
 
 import (
-	"horizon/route"
+	"horizon/server/route"
 
 	"github.com/sirupsen/logrus"
 )

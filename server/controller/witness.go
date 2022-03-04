@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"horizon/model"
+	"horizon/server/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

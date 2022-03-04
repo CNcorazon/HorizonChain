@@ -1,7 +1,7 @@
 package route
 
 import (
-	"horizon/controller"
+	"horizon/server/controller"
 
 	"github.com/gin-gonic/gin"
 )
