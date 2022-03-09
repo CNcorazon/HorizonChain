@@ -1,4 +1,4 @@
-package main
+package communication
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ const (
 	url = "http://127.0.0.1:8080/witness/requestTransaction"
 )
 
-func main() {
+func comm_1() {
 	data := model.WitnessTransactionsRequest{
 		Id: "TestID123",
 	}
