@@ -9,6 +9,8 @@ import (
 func witnessRoute(r *gin.Engine) {
 	user := r.Group("/witness")
 	{
+		user.POST("/requestProposalMsg", controller.)
 		user.POST("/requestTransaction", controller.WitnessGetTransaction)
 	}
 }
+

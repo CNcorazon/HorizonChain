@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"horizon/server/model"
+	"horizon/model"
 	"io/ioutil"
 	"net/http"
 )

@@ -1,6 +1,6 @@
 package main
 
-import "horizon/mobile/consensus"
+import "horizon/consensus"
 
 func main() {
 	consensus.HorizonChain()
