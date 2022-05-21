@@ -1,29 +1,88 @@
 package model
 
+import (
+	"horizon/structure"
+)
+
 type (
-	ProBlock struct {
-		Shard_id           int    `json:"shard_id"`
-		Shard_length       int    `json:"shard_length"`
-		Previous_hash      string `json:"previous_hash"`
-		Txblock_list       string `json:"txblock_list"`
-		Globalstate_minus2 string `json:"globalstate_minus2"`
-
-		Time_stamp int64   `json:"time_stamp"`
-		Vrf        float64 `json:"vrf"`
-		Public_key string  `json:"public_key"`
+	BlockTransactionRequest struct {
+		Shard uint
+		Id    string
+	}
+	BlockTransactionResponse struct {
+		Shard          uint
+		Height         uint //需要生成的区块的高度，是当前区块链的高度+1
+		Num            int
+		InternalList   map[uint][]structure.InternalTransaction
+		CrossShardList map[uint][]structure.CrossShardTransaction
+		RelayList      map[uint][]structure.SuperTransaction
 	}
 
-	TxBlock struct {
-		Shard_id     int      `json:"shard_id"`
-		Shard_length int      `json:"shard_length"`
-		Tx_list      []string `json:"tx_list"`
-
-		Time_stamp int64  `json:"time_stamp"`
-		Sig        string `json:"sig"`
-		Public_key string `json:"public_key"`
+	BlockRequest struct {
+		Shard  uint
+		Height uint
+	}
+	BlockAccountRequest struct {
+		Shard uint
 	}
 
-	WitnessTransactionsRequest struct {
-		Id string `json:"id"`
+	BlockAccountResponse struct {
+		Shard       uint
+		Height      uint //当前区块链的高度
+		AccountList []structure.Account
+		GSRoot      structure.GSRoot
+	}
+
+	BlockUploadRequest struct {
+		Shard     uint
+		Height    uint
+		Id        string
+		Block     structure.Block
+		ReLayList map[uint][]structure.SuperTransaction
+	}
+
+	BlockUploadResponse struct {
+		Shard   uint
+		Height  uint
+		Message string
+	}
+
+	TxWitnessRequest struct {
+		Shard uint
+	}
+
+	TxWitnessResponse struct {
+		Shard          uint
+		Height         uint
+		Num            int
+		InternalList   map[uint][]structure.InternalTransaction
+		CrossShardList map[uint][]structure.CrossShardTransaction
+		RelayList      map[uint][]structure.SuperTransaction
+	}
+
+	TxWitnessRequest_2 struct {
+		Shard          uint
+		Height         uint
+		Num            int
+		InternalList   map[uint][]structure.InternalTransaction
+		CrossShardList map[uint][]structure.CrossShardTransaction
+		RelayList      map[uint][]structure.SuperTransaction
+	}
+
+	TxWitnessResponse_2 struct {
+		Message string
+	}
+
+	RootUploadRequest struct {
+		Shard  uint
+		Height uint
+		Id     string
+		Root   string
+	}
+
+	RootUploadResponse struct {
+		// Shard   uint
+		Height  uint
+		Message string
 	}
 )
