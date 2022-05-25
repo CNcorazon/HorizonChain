@@ -43,7 +43,7 @@ func main() {
 		}
 		if !flag1 {
 			log.Printf("当前没有分片需要节点")
-			time.Sleep(time.Second)
+			time.Sleep(5 * time.Second)
 			continue
 		}
 		log.Printf("被分配到了%v分片作为移动节点执行", shard)
@@ -82,11 +82,15 @@ func main() {
 			log.Println("进入委员会，获得了区块的提出权")
 			TransactionList := request.RequestTransaction(shard, HTTPURL, blockTransaction, id)
 			//验证交易的区块见证，即其他移动节点的签名
-			time.Sleep(structure.CLIENT_MAX * structure.SIGN_VERIFY_TIME * time.Millisecond)
-			//请求账户的状态和各分片树根签名
+			//这边假设有1000个节点
+			time.Sleep(1000 * structure.SIGN_VERIFY_TIME * time.Millisecond)
+			//请求账户的状态
+			//和各分片树根签名 accList.GSRoot
 			accList := request.RequestAccount(shard, HTTPURL, blockAccount)
 			// log.Println(TransactionList.RelayList)
 			state := structure.MakeStateWithAccount(shard, accList.AccountList, accList.GSRoot)
+			// 验证树根签名
+			time.Sleep(structure.ShardNum * 1000 * structure.SIGN_VERIFY_TIME * time.Millisecond)
 			newBlock := structure.MakeBlock(TransactionList.InternalList, TransactionList.CrossShardList, TransactionList.RelayList, state, TransactionList.Height, accList.GSRoot)
 
 			blockPointer := &newBlock
@@ -124,7 +128,7 @@ func main() {
 			//最后提交区块
 			res := request.UploadBlock(shard, finalBlock, winid, HTTPURL, blockUpload)
 			log.Printf("分片%v%v,当前链的高度为%v", res.Shard, res.Message, res.Height)
-			time.Sleep(time.Second)
+			// time.Sleep(time.Second)
 		} else if consensusflag && !winflag {
 			//如果没有获得出块权利，就只能等待Leader生成的区块
 			log.Printf("进入委员会，等待其他节点提出区块")
@@ -136,11 +140,12 @@ func main() {
 				//验证收到的Leader执行生成的区块是否正确
 				transactionList := blockMessage.Block.Body.Transaction
 				//验证交易的区块见证，即其他移动节点的签名
-				time.Sleep(structure.CLIENT_MAX * structure.SIGN_VERIFY_TIME * time.Millisecond)
+				time.Sleep(1000 * structure.SIGN_VERIFY_TIME * time.Millisecond)
 				// log.Println(transactionList.SuperList)
 				accList := request.RequestAccount(shard, HTTPURL, blockAccount)
 				// log.Println(accList.Shard)
 				state := structure.MakeStateWithAccount(shard, accList.AccountList, accList.GSRoot)
+				time.Sleep(structure.ShardNum * 1000 * structure.SIGN_VERIFY_TIME * time.Millisecond)
 				newBlock2 := structure.MakeBlock(transactionList.InternalList, transactionList.CrossShardList, transactionList.SuperList, state, accList.Height+1, accList.GSRoot)
 				//检验区块
 				log.Printf("下面检查区块是否正确")
@@ -151,7 +156,7 @@ func main() {
 				//进行投票
 				resp := request.SendVote(shard, int(newBlock2.Header.Height), winid, id, flag, HTTPURL, sendtvote)
 				log.Println(resp.Message)
-				time.Sleep(time.Second)
+				// time.Sleep(time.Second)
 			}
 		} else {
 			log.Printf("未进入委员会, 进行区块见证")
@@ -162,7 +167,7 @@ func main() {
 			log.Printf("区块见证前的区块高度为%v", height_old)
 			for {
 				height_new := request.HeightRequest(HTTPURL, heightNum)
-				log.Printf("此时的区块高度为%v", height_new)
+				// log.Printf("此时的区块高度为%v", height_new)
 				if height_new != height_old {
 					log.Printf("共识完成，区块见证结束")
 					break
@@ -178,6 +183,7 @@ func main() {
 			time.Sleep(structure.TX_NUM * 3 * structure.SIGN_VERIFY_TIME * time.Millisecond)
 			transaction := request.RequestBlock(shard, HTTPURL, blockTxValidation)
 			accList := request.RequestAccount(shard, HTTPURL, blockAccount)
+			log.Printf("gsroot:%v", accList.GSRoot)
 			state := structure.MakeStateWithAccount(shard, accList.AccountList, accList.GSRoot)
 			txlist := structure.TransactionBlock{
 				InternalList:   transaction.InternalList,
@@ -189,8 +195,7 @@ func main() {
 			fmt.Println(res.Message)
 			// r := rand.New(rand.NewSource(time.Now().UnixNano()))
 			// num := r.Intn(5)
-			time.Sleep(5 * time.Second)
+			// time.Sleep(5 * time.Second)
 		}
 	}
-
 }
