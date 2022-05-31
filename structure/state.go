@@ -1,6 +1,8 @@
 package structure
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -24,13 +26,13 @@ type (
 )
 
 //计算账户的状态
-func (s *State) CalculateRoot() string {
-	jsonString, err := json.Marshal(s.AccountMap)
+func (s *State) CalculateRoot(shard uint) string {
+	jsonString, err := json.Marshal(s.AccountMap[shard])
 	if err != nil {
 		log.Fatalln("计算账户状态Root失败")
 	}
-	return string(jsonString)
-
+	byte32 := sha256.Sum256(jsonString)
+	return hex.EncodeToString(byte32[:])
 }
 
 //往全局状态中添加账户
@@ -43,26 +45,26 @@ func (s *State) AppendAccount(acc Account) {
 }
 
 // 验证交易，返回账户的树根
-func UpdateState(tran TransactionBlock, height uint, s *State) string {
+func UpdateState(tran TransactionBlock, height uint, s *State, shard uint) string {
 	//处理超级交易
 	Super := tran.SuperList
 	IntTraList := tran.InternalList
 	CroShaList := tran.CrossShardList
 
-	for i := 1; i <= ShardNum; i++ {
-		for _, tran := range Super[uint(i)] {
-			ExcuteRelay(tran, s, i)
-		}
-		//处理内部交易
-		for _, tran := range IntTraList[uint(i)] {
-			ExcuteInteral(tran, s, i)
-		}
-		//处理跨分片交易
-		for _, tran := range CroShaList[uint(i)] {
-			ExcuteCross(tran, height, s, i)
-		}
+	// for i := 1; i <= ShardNum; i++ {
+	for _, tran := range Super[shard] {
+		ExcuteRelay(tran, s, int(shard))
 	}
-	return s.CalculateRoot()
+	//处理内部交易
+	for _, tran := range IntTraList[shard] {
+		ExcuteInteral(tran, s, int(shard))
+	}
+	//处理跨分片交易
+	for _, tran := range CroShaList[shard] {
+		ExcuteCross(tran, height, s, int(shard))
+	}
+	// }
+	return s.CalculateRoot(shard)
 }
 
 func ExcuteInteral(i InternalTransaction, s *State, shardNum int) {
@@ -221,7 +223,7 @@ func (s *State) LogState(height uint) {
 }
 
 //根据区块更新世界状态
-func UpdateStateWithTxBlock(transaction TransactionBlock, height uint, s *State) string {
-	root := UpdateState(transaction, height, s)
+func UpdateStateWithTxBlock(transaction TransactionBlock, height uint, s *State, shard uint) string {
+	root := UpdateState(transaction, height, s, shard)
 	return root
 }

@@ -13,8 +13,8 @@ import (
 const (
 	HTTPURL = "http://127.0.0.1:8080"
 	WSURL   = "ws://127.0.0.1:8080"
-	// HTTPURL           = "http://172.18.166.60:1023"
-	// WSURL             = "ws://172.18.166.60:1023"
+	// HTTPURL           = "http://172.18.166.60:8800"
+	// WSURL             = "ws://http://172.18.166.60:8800"
 	blockTransaction  = "/block/transaction"
 	blockAccount      = "/block/account"
 	blockUpload       = "/block/upload"
@@ -87,6 +87,7 @@ func main() {
 			//请求账户的状态
 			//和各分片树根签名 accList.GSRoot
 			accList := request.RequestAccount(shard, HTTPURL, blockAccount)
+			log.Println(accList.GSRoot)
 			// log.Println(TransactionList.RelayList)
 			state := structure.MakeStateWithAccount(shard, accList.AccountList, accList.GSRoot)
 			// 验证树根签名
@@ -190,7 +191,7 @@ func main() {
 				CrossShardList: transaction.CrossShardList,
 				SuperList:      transaction.RelayList,
 			}
-			root := structure.UpdateStateWithTxBlock(txlist, transaction.Height, state)
+			root := structure.UpdateStateWithTxBlock(txlist, transaction.Height, state, shard)
 			res := request.UploadRoot(shard, id, transaction.Height, root, HTTPURL, blockUploadRoot)
 			fmt.Println(res.Message)
 			// r := rand.New(rand.NewSource(time.Now().UnixNano()))

@@ -1,6 +1,8 @@
 package structure
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"log"
 	"time"
@@ -51,7 +53,8 @@ func (t *TransactionBlock) CalculateRoot() string {
 	if err != nil {
 		log.Fatalln("计算交易区块Root失败")
 	}
-	return string(jsonString)
+	byte32 := sha256.Sum256(jsonString)
+	return hex.EncodeToString(byte32[:])
 }
 
 func (r *SuperTransactionBlock) CalculateRoot() string {
@@ -59,7 +62,8 @@ func (r *SuperTransactionBlock) CalculateRoot() string {
 	if err != nil {
 		log.Fatalln("计算接力交易区块Root失败")
 	}
-	return string(jsonString)
+	byte32 := sha256.Sum256(jsonString)
+	return hex.EncodeToString(byte32[:])
 }
 
 func MakeTransactionBlock(IntTraList map[uint][]InternalTransaction, CroList map[uint][]CrossShardTransaction, SuList map[uint][]SuperTransaction) TransactionBlock {
@@ -120,6 +124,8 @@ func CompareBlocks(b1 Block, b2 Block) bool {
 		return false
 	} else if b1.Header.TransactionRoot != b2.Header.TransactionRoot {
 		log.Printf("两个区块的交易列表不同")
+		log.Println(b1.Header.TransactionRoot)
+		log.Println(b2.Header.TransactionRoot)
 		return false
 	} else if b1.Header.SuperTransactionRoot != b2.Header.SuperTransactionRoot {
 		log.Printf("两个区块生成的接力交易列表不同")
